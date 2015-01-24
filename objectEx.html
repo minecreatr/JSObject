@@ -1,0 +1,248 @@
+<html>
+<head><title>test</title>
+<body>
+<canvas id="myCanvas" width="700" height="500"
+style="border:1px solid #000000;">
+</canvas>
+<script>
+
+var Entitys = new Array();
+
+var c=document.getElementById("myCanvas");
+var ctx=c.getContext("2d");
+
+var wDown=false
+var aDown=false
+var sDown=false
+var dDown=false
+
+var speed = prompt("Amount of lag");
+
+
+function Entity(name,shape,color,size,x,y,isNpc,isSolid){
+	this.name=name;
+	this.color=color;
+	this.size=size;
+	this.x=x;
+	this.y=y;
+	this.xMom=0;
+	this.yMom=0;
+	this.npc=isNpc;
+	this.isSolid=isSolid;
+	this.shape=shape;
+
+	this.reportXY=function(){
+		console.log(this.x,this.y);
+	}
+
+	this.renderTick=function(ctx, up, down, left, right, Entitys){
+
+		for (var index = 0; index < Entitys.length; index++){
+			other = Entitys[index];
+			if (other!=this){
+				if (other.isTouching(this)){
+					other.onCollide(this);
+				}
+			}
+		}
+
+		if (up&&(!this.npc)){
+			this.yMom--;
+		}
+		else if (down&&(!this.npc)){
+			this.yMom++;
+		}
+		else {
+			if (this.yMom>0){
+				if (this.yMom<1){
+					this.yMom=0;
+				}
+				else {
+					this.yMom--;
+				}
+			}
+			else if (this.yMom<0){
+				if (this.yMom>-1){
+					this.yMom=0;
+				}
+				else {
+					this.yMom++;
+				}
+
+			}
+		}
+
+		if (left&&(!this.npc)){
+			this.xMom--;
+		}
+		else if (right&&(!this.npc)){
+			this.xMom++;
+		}
+		else {
+			if (this.xMom>0){
+				if (this.xMom<1){
+					this.xMom=0;
+				}
+				else {
+					this.xMom--;
+				}
+			}
+			else if (this.xMom<0){
+				if (this.xMom>-1){
+					this.xMom=0;
+				}
+				else {
+					this.xMom++;
+				}
+			}
+		}
+
+		this.x=this.x+this.xMom;
+		this.y=this.y+this.yMom;
+
+		
+ 
+
+		if (this.shape=="circle"){
+			ctx.beginPath();
+			ctx.arc(this.x,this.y,this.size,0,2*Math.PI);
+			ctx.stroke();
+			ctx.fillStyle=this.color;
+			ctx.fill();
+		}
+		else if (this.shape=="square"){
+			ctx.beginPath();
+			half = size/2;
+			ctx.rect(this.x-half,this.y-half, size, size);
+			ctx.fillStyle=this.color;
+			ctx.fill();
+		}
+	}
+
+	this.isNpc = function(){
+		return this.npc;
+	}
+
+	this.isTouching = function(other){
+		maxRadius = this.size+other.size;
+		if (distance(this.x, this.y, other.x, other.y)<=maxRadius){
+			return true;
+		}
+		else {
+			return
+		}
+	}
+
+	this.onCollide=function(other){
+		//this.xMom=this.xMom+((other.xMom)/2);
+		//this.yMom=this.yMom+((other.yMom)/2);
+		if (!this.isSolid){
+			if (other.isSolid){
+				loop = true;
+				while (loop){
+					if (this.x>other.x){
+						this.x++;
+					}
+					else {
+						this.x--;
+					}
+					if (this.y>other.y){
+						this.y++;
+					}
+					else {
+						this.y--;
+					}
+					if (!other.isTouching(this)){
+						loop=false;
+					}
+				}
+			}
+			else {
+				vector=[this.x-other.x, this.y-other.y];
+				centerDist=Math.sqrt(vector[0]*vector[0]+vector[1]*vector[1]);
+				cmMom=[(this.xMom+other.xMom)/2, (this.yMom+other.yMom)/2];
+				cmFrameMom=[this.xMom-cmMom[0], this.yMom-cmMom[1]];
+				push=-(vector[0]*cmFrameMom[0]+vector[1]*cmMom[1])/centerDist;
+				this.xMom+=push*vector[0]/centerDist;
+				this.yMom+=push*vector[1]/centerDist;
+				if (this.x>other.x){
+					this.x++;
+				}
+				else {
+					this.x--;
+				}
+				if (this.y>other.y){
+					this.y++;
+				}
+				else {
+					this.y--;
+				}
+				if (!other.isTouching(this)){
+					loop=false;
+				}
+			}
+		}
+		
+		console.log(other.name+" collided with "+this.name);
+	}
+
+	
+}
+
+function distance (xOne, yOne, xTwo, yTwo) {
+	return Math.sqrt(sqr(xOne-xTwo)+sqr(yOne-yTwo));
+}
+
+function sqr (num){
+	return num*num;
+}
+
+document.body.onkeydown=function(event){
+	kp = String.fromCharCode(event.keyCode);
+	if (kp==="W"){
+		wDown=true;
+	}
+	else if (kp=="S"){
+		sDown=true;
+	}
+	else if (kp=="A"){
+		aDown=true;
+	}
+	else if (kp=="D"){
+		dDown=true;
+	}
+}
+
+document.body.onkeyup=function(event){
+	kp = String.fromCharCode(event.keyCode);
+	if (kp==="W"){
+		wDown=false;
+	}
+	else if (kp=="S"){
+		sDown=false;
+	}
+	else if (kp=="A"){
+		aDown=false;
+	}
+	else if (kp=="D"){
+		dDown=false;
+	}
+}
+
+Entitys.push(new Entity("Entity3", "square","green", 40, 200, 200, true, true));
+Entitys.push(new Entity("Entity", "circle","blue", 20, 250, 250, false, false));
+Entitys.push(new Entity("Entity2", "circle","red", 20, 300, 300, true, false));
+console.log(Entitys[1].name);
+setInterval(function (){
+	ctx.clearRect(0, 0, c.width, c.height)
+	for (var index = 0; index < Entitys.length; index++){
+		Entitys[index].renderTick(ctx, wDown, sDown, aDown, dDown, Entitys);
+		//console.log("Looping "+Entitys[index].name);
+	}
+}, speed);
+
+
+
+</script>
+
+</body></html>
