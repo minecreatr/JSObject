@@ -99,7 +99,7 @@ function Entity(name,shape,color,size,x,y,isNpc,isSolid){
 
 		this.x=this.x+this.xMom;
 		this.y=this.y+this.yMom;
-
+		checkWall(this);
 		
  
 
@@ -241,7 +241,25 @@ setInterval(function (){
 	}
 }, speed);
 
+checkWall = function(entity){
+	if (entity.x>(c.width-entity.size)){
+		entity.x--;
+		entity.xMom=-entity.xMom;
+	}
+	else if (entity.x<entity.size){
+		entity.x++;
+		entity.xMom=-entity.xMom;
+	}
 
+	if (entity.y>(c.height-entity.size)){
+		entity.y--;
+		entity.yMom=-entity.yMom;
+	}
+	else if (entity.y<entity.size){
+		entity.y++;
+		entity.yMom=-entity.yMom;
+	}
+}
 
 </script>
 
