@@ -158,27 +158,34 @@ function Entity(name,shape,color,size,x,y,isNpc,isSolid){
 				}
 			}
 			else {
-				vector=[this.x-other.x, this.y-other.y];
-				centerDist=Math.sqrt(vector[0]*vector[0]+vector[1]*vector[1]);
-				cmMom=[(this.xMom+other.xMom)/2, (this.yMom+other.yMom)/2];
-				cmFrameMom=[this.xMom-cmMom[0], this.yMom-cmMom[1]];
-				push=-(vector[0]*cmFrameMom[0]+vector[1]*cmMom[1])/centerDist;
-				this.xMom+=push*vector[0]/centerDist;
-				this.yMom+=push*vector[1]/centerDist;
-				if (this.x>other.x){
-					this.x++;
-				}
-				else {
-					this.x--;
-				}
-				if (this.y>other.y){
-					this.y++;
-				}
-				else {
-					this.y--;
-				}
-				if (!other.isTouching(this)){
-					loop=false;
+				// vector=[this.x-other.x, this.y-other.y];
+				// centerDist=Math.sqrt(vector[0]*vector[0]+vector[1]*vector[1]);
+				// cmMom=[(this.xMom+other.xMom)/2, (this.yMom+other.yMom)/2];
+				// cmFrameMom=[this.xMom-cmMom[0], this.yMom-cmMom[1]];
+				// push=-(vector[0]*cmFrameMom[0]+vector[1]*cmMom[1])/centerDist;
+				// this.xMom+=push*vector[0]/centerDist;
+				// this.yMom+=push*vector[1]/centerDist;
+				loop = true;
+				while (loop){
+					if (this.x>other.x){
+						this.x++;
+						other.x--;
+					}
+					else {
+						this.x--;
+						other.x++;
+					}
+					if (this.y>other.y){
+						this.y++;
+						other.y--;
+					}
+					else {
+						this.y--;
+						other.y++;
+					}
+					if (!other.isTouching(this)){
+						loop=false;
+					}
 				}
 			}
 		}
